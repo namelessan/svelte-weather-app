@@ -7,40 +7,26 @@
     fetchWeather,
   } from '../stores/weatherStore';
   import type { City } from '../types';
-  import { onMount } from 'svelte';
+  import LocationSearch from './LocationSearch.svelte';
 
-  const cities: City[] = [
-    { name: 'Ha Noi, Vietnam', lat: 20.47366, lon: 106.02292 },
-    { name: 'Ho Chi Minh city, Vietnam', lat: 10.82302, lon: 106.62965 },
-    { name: 'Munich, Germany', lat: 48.13743, lon: 11.57549 },
-  ];
+  let selectedLocation = { lat: 0, lon: 0, name: '' };
 
-  let selectedCity: City = cities[0];
-
-  // Fetch weather on mount for default city
-  onMount(() => {
-    fetchWeather(selectedCity.lat, selectedCity.lon);
-  });
-
-  function handleCityChange() {
-    fetchWeather(selectedCity.lat, selectedCity.lon);
+  function locationSelect(payload: City) {
+    selectedLocation = payload;
+    fetchWeather(selectedLocation.lat, selectedLocation.lon);
   }
 </script>
 
 <h1>Weather App</h1>
 
 <label for="city-select">Select City:</label>
-<select id="city-select" bind:value={selectedCity} on:change={handleCityChange}>
-  {#each cities as city}
-    <option value={city}>{city.name}</option>
-  {/each}
-</select>
+<LocationSearch {locationSelect}></LocationSearch>
 
 {#if $loading}
   <p class="loading">Loading...</p>
 {:else if $error}
   <p class="error">Error: {$error}</p>
-{:else if $weatherData && $weatherUnit}
+{:else if $weatherData}
   <div class="weather-info">
     <p>Temperature: {$weatherData.temperature} {$weatherUnit.temperature}</p>
     <p>Wind Speed: {$weatherData.windspeed} {$weatherUnit.windspeed}</p>
